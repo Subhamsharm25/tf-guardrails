@@ -1,0 +1,75 @@
+# Same stages as the Jenkinsfile: every job calls ci.py.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip }
+      - run: pip install -e ".[dev]"
+      - run: python ci.py lint unit
+
+  terraform-policy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip }
+      - uses: hashicorp/setup-terraform@v3
+        with: { terraform_version: "1.17.2", terraform_wrapper: false }
+      - run: pip install -e .
+      - run: python ci.py plan policy
+      - uses: actions/upload-artifact@v4
+        with: { name: plans-and-reports, path: "examples/**/plan.json\nreports/" }
+
+  container:
+    needs: [quality]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - uses: hashicorp/setup-terraform@v3
+        with: { terraform_version: "1.17.2", terraform_wrapper: false }
+      - run: pip install -e .
+      - run: python ci.py plan build scan container
+
+  # Dogfood the reusable action exactly as another repository would use it.
+  action-selftest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compliant plan passes
+        uses: ./
+        with:
+          plan: examples/azure/compliant/plan.fixture.json
+          waivers: none
+          sarif: compliant.sarif
+          source-root: examples/azure/compliant
+      - name: Noncompliant plan is blocked
+        id: bad
+        continue-on-error: true
+        uses: ./
+        with:
+          plan: examples/azure/noncompliant/plan.fixture.json
+          waivers: none
+          sarif: noncompliant.sarif
+          source-root: examples/azure/noncompliant
+      - name: Assert the action blocked it and reported every finding
+        run: |
+          test "${{ steps.bad.outcome }}" = "failure"
+          python3 -c "import json;r=json.load(open('noncompliant.sarif'))['runs'][0]['results'];assert len(r)==5,len(r);print(len(r),'SARIF results')"

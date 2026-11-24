@@ -1,0 +1,19 @@
+{
+  "_comment": "Exact findings the pipeline expects per example (rule id -> resources). Any drift fails CI.",
+  "aws-gcp/noncompliant": {
+    "AWS-S3-001": ["aws_s3_bucket.logs"],
+    "AWS-S3-002": ["aws_s3_bucket.logs"],
+    "AWS-SG-001": ["aws_security_group.bastion", "aws_vpc_security_group_ingress_rule.rdp"],
+    "AWS-RDS-001": ["aws_db_instance.orders"],
+    "GCP-GCS-001": ["google_storage_bucket.exports"],
+    "GCP-FW-001": ["google_compute_firewall.ssh"],
+    "TAG-001": ["aws_s3_bucket.logs", "google_storage_bucket.exports"]
+  },
+  "aws-gcp/compliant": {},
+  "azure/noncompliant": {
+    "AZ-ST-001": ["azurerm_storage_account.data"],
+    "AZ-NSG-001": ["azurerm_network_security_group.web"],
+    "TAG-001": ["azurerm_network_security_group.web", "azurerm_resource_group.app", "azurerm_storage_account.data"]
+  },
+  "azure/compliant": {}
+}

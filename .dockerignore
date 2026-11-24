@@ -1,0 +1,10 @@
+.git
+.github
+.venv
+**/__pycache__
+.terraform-cache
+**/.terraform
+examples
+tests
+reports
+.trivy-cache

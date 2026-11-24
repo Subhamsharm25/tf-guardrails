@@ -1,0 +1,42 @@
+name: tf-guardrails
+description: Block Terraform plans that break security and tagging guardrails on AWS, Azure and GCP
+author: Subham Sharma
+branding:
+  icon: shield
+  color: red
+
+inputs:
+  plan:
+    description: Path to a plan JSON file (`terraform show -json tfplan > plan.json`)
+    required: true
+  waivers:
+    description: Path to a waivers file (rule, resource, reason, expires)
+    default: tfguard-waivers.json
+  fail-on:
+    description: Lowest severity that fails the step (CRITICAL, HIGH, MEDIUM, LOW)
+    default: HIGH
+  sarif:
+    description: Where to write a SARIF report (upload it with github/codeql-action/upload-sarif)
+    default: tfguard.sarif
+  source-root:
+    description: Directory with the .tf files, so SARIF results point at the right lines
+    default: .
+
+outputs:
+  sarif:
+    description: Path of the SARIF report
+    value: ${{ inputs.sarif }}
+
+runs:
+  using: composite
+  steps:
+    - name: Run tfguard
+      shell: bash
+      env:
+        PYTHONPATH: ${{ github.action_path }}/src
+      run: >
+        python3 -m tfguard "${{ inputs.plan }}"
+        --waivers "${{ inputs.waivers }}"
+        --fail-on "${{ inputs.fail-on }}"
+        --sarif "${{ inputs.sarif }}"
+        --source-root "${{ inputs.source-root }}"

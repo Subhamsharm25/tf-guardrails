@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tfguard"
+version = "0.1.0"
+description = "Policy gate for Terraform plans on AWS, Azure and GCP (SARIF, PR summaries, expiring waivers)"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Subham Sharma" }]
+requires-python = ">=3.11"
+dependencies = []   # standard library only: easy to run in any CI image
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-cov>=5", "ruff>=0.8"]
+
+[project.scripts]
+tfguard = "tfguard.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]

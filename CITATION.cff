@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "tf-guardrails: a policy gate for Terraform plans on AWS, Azure and GCP"
+type: software
+version: 0.1.0
+date-released: 2026-11-24
+license: MIT
+repository-code: "https://github.com/Subhamsharm25/tf-guardrails"
+keywords: [terraform, policy-as-code, devsecops, multi-cloud, sarif, github-actions]
+authors:
+  - family-names: "Sharma"
+    given-names: "Subham"

@@ -1,0 +1,36 @@
+{
+  "format_version": "1.2",
+  "terraform_version": "1.17.2",
+  "resource_changes": [
+    {
+      "address": "azurerm_resource_group.app", "mode": "managed", "type": "azurerm_resource_group", "name": "app",
+      "change": {"actions": ["create"], "after": {"name": "rg-noncompliant", "location": "centralindia", "tags": null},
+                 "after_unknown": {"id": true}}
+    },
+    {
+      "address": "azurerm_storage_account.data", "mode": "managed", "type": "azurerm_storage_account", "name": "data",
+      "change": {"actions": ["create"],
+                 "after": {"name": "noncompliantdata01", "account_tier": "Standard", "account_replication_type": "LRS",
+                           "min_tls_version": "TLS1_0", "https_traffic_only_enabled": false,
+                           "allow_nested_items_to_be_public": true, "tags": null},
+                 "after_unknown": {"id": true, "location": true, "resource_group_name": true}}
+    },
+    {
+      "address": "azurerm_network_security_group.web", "mode": "managed", "type": "azurerm_network_security_group", "name": "web",
+      "change": {"actions": ["create"],
+                 "after": {"name": "nsg-web", "tags": null,
+                           "security_rule": [{"name": "allow-rdp", "priority": 100, "direction": "Inbound", "access": "Allow",
+                                              "protocol": "Tcp", "source_port_range": "*", "destination_port_range": "3389",
+                                              "destination_port_ranges": [], "source_address_prefix": "Internet",
+                                              "source_address_prefixes": [], "destination_address_prefix": "*"}]},
+                 "after_unknown": {"id": true, "location": true, "resource_group_name": true}}
+    }
+  ],
+  "configuration": {"root_module": {"resources": [
+    {"address": "azurerm_resource_group.app", "type": "azurerm_resource_group", "name": "app", "expressions": {}},
+    {"address": "azurerm_storage_account.data", "type": "azurerm_storage_account", "name": "data",
+     "expressions": {"resource_group_name": {"references": ["azurerm_resource_group.app.name", "azurerm_resource_group.app"]}}},
+    {"address": "azurerm_network_security_group.web", "type": "azurerm_network_security_group", "name": "web",
+     "expressions": {"resource_group_name": {"references": ["azurerm_resource_group.app.name", "azurerm_resource_group.app"]}}}
+  ]}}
+}

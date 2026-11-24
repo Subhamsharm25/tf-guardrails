@@ -1,0 +1,14 @@
+[
+  {
+    "rule": "AZ-ST-001",
+    "resource": "azurerm_storage_account.data",
+    "reason": "OPS-482: legacy TLS 1.0 client, migration scheduled",
+    "expires": "2099-12-31"
+  },
+  {
+    "rule": "AZ-NSG-001",
+    "resource": "azurerm_network_security_group.*",
+    "reason": "OPS-311: temporary RDP for vendor (should have been removed)",
+    "expires": "2025-06-30"
+  }
+]
