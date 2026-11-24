@@ -96,7 +96,7 @@ only call it.
 | Stage | What it proves |
 |---|---|
 | `lint` | ruff lint + format |
-| `unit` | 28 tests: every rule's pass and fail cases, port ranges, IPv6, all-ports rules, references through `count`, tag fallbacks, waivers, SARIF, Markdown and JSON outputs, exit codes. Coverage ≥ 90% (currently 95%) |
+| `unit` | 29 tests: every rule's pass and fail cases, port ranges, IPv6, all-ports rules, references through `count`, tag fallbacks, waivers, SARIF, Markdown and JSON outputs, exit codes (an I/O failure is exit 2, never a fake verdict). Coverage ≥ 90% (currently 95%) |
 | `plan` | `terraform fmt`; real **offline** plans of the AWS+GCP examples with the official providers (no credentials); `validate` for the Azure examples |
 | `policy` | tfguard must report **exactly** the findings in [`examples/expected.json`](examples/expected.json) for every example; any drift fails. Active waiver unblocks, expired waiver blocks |
 | `build` / `scan` | container image; Trivy finds no fixable HIGH/CRITICAL CVEs |

@@ -50,16 +50,21 @@ def main(argv: list[str] | None = None) -> int:
     blocking = [f for f in findings if not f.waived and SEVERITIES.index(f.rule.severity) <= threshold]
 
     print(text(findings, expired, blocking))
-    if args.sarif:
-        Path(args.sarif).write_text(sarif(findings, args.source_root), encoding="utf-8")
-    if args.json_out:
-        Path(args.json_out).write_text(as_json(findings, expired, blocking), encoding="utf-8")
     md = markdown(findings, expired, blocking)
-    if args.markdown:
-        Path(args.markdown).write_text(md, encoding="utf-8")
-    if os.environ.get("GITHUB_STEP_SUMMARY"):
-        with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as fh:
-            fh.write(md)
+    try:
+        if args.sarif:
+            Path(args.sarif).write_text(sarif(findings, args.source_root), encoding="utf-8")
+        if args.json_out:
+            Path(args.json_out).write_text(as_json(findings, expired, blocking), encoding="utf-8")
+        if args.markdown:
+            Path(args.markdown).write_text(md, encoding="utf-8")
+        if os.environ.get("GITHUB_STEP_SUMMARY"):
+            with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as fh:
+                fh.write(md)
+    except OSError as exc:
+        # Never let an I/O failure look like a policy verdict (exit 1 means "blocked").
+        print(f"tfguard: could not write report: {exc}", file=sys.stderr)
+        return 2
     return 1 if blocking else 0
 
 

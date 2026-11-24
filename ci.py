@@ -150,10 +150,14 @@ def container() -> None:
     REPORTS.mkdir(exist_ok=True)
     sarif = REPORTS / "container.sarif"
     sarif.unlink(missing_ok=True)
+    # On Linux, run as the invoking user so the non-root image can write into the bind mount
+    # (Docker Desktop on Windows/macOS maps ownership itself).
+    user = ["--user", f"{os.getuid()}:{os.getgid()}"] if hasattr(os, "getuid") else []
     res = run(
         "docker",
         "run",
         "--rm",
+        *user,
         "--memory",
         "256m",
         "-v",

@@ -96,6 +96,14 @@ def test_sarif_markdown_json_outputs(bad_plan, tmp_path, monkeypatch):
     assert summary.read_text(encoding="utf-8") == md
 
 
+def test_unwritable_report_is_an_error_not_a_verdict(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    good = tmp_path / "good.json"
+    good.write_text(json.dumps(plan()))
+    # The target is a directory, so writing fails: exit 2, even though the plan itself passes.
+    assert main([str(good), "--sarif", str(tmp_path)]) == 2
+
+
 def test_list_rules(capsys):
     assert main(["--list-rules"]) == 0
     assert "AWS-S3-001" in capsys.readouterr().out
